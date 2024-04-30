@@ -42,7 +42,7 @@ export class ContactService {
     return this.toContactResponse(contact);
   }
 
-  private toContactResponse(contact: Contact): ContactResponse {
+  toContactResponse(contact: Contact): ContactResponse {
     return {
       first_name: contact.first_name,
       last_name: contact.last_name,
@@ -52,7 +52,7 @@ export class ContactService {
     };
   }
 
-  private async checkContactMustExists(
+  async checkContactMustExists(
     username: string,
     contactId: number,
   ): Promise<Contact> {
