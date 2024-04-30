@@ -55,7 +55,7 @@ describe('User Endpoint', () => {
 
       logger.info(response.body);
 
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(201);
       expect(response.body.data.username).toBe('test');
       expect(response.body.data.name).toBe('test');
     });
