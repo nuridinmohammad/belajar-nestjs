@@ -9,6 +9,7 @@ async function bootstrap() {
   const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
   app.useLogger(logger);
   const configService = app.get(ConfigService);
+  console.log(`Server run at port ${configService.get('PORT')}`);
   await app.listen(configService.get('PORT'));
 }
 bootstrap();

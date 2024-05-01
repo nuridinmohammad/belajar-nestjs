@@ -1,17 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { WinstonModule } from 'nest-winston';
-import * as winston from 'winston';
+import { CommonModule } from './common/common.module';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [
-    WinstonModule.forRoot({
-      format: winston.format.json(),
-      level: 'debug',
-      transports: [new winston.transports.Console()],
-    }),
-    ConfigModule.forRoot({ isGlobal: true }),
-  ],
+  imports: [CommonModule, UserModule],
   controllers: [],
   providers: [],
 })
