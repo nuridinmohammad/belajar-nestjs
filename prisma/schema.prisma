@@ -14,7 +14,7 @@ model User {
   password   String
   token      String?
   created_at DateTime @default(now())
-  update_at  DateTime @updatedAt
+  update_at  DateTime @default(now()) @updatedAt
 
   todos    Todo[]
   category Category[]
@@ -27,13 +27,13 @@ model Todo {
   title      String
   body       String
   created_at DateTime @default(now())
-  update_at  DateTime @updatedAt
+  update_at  DateTime @default(now()) @updatedAt
 
   user     User?  @relation(fields: [username], references: [username])
   username String
 
   category      Category? @relation(fields: [category_name], references: [name])
-  category_name String
+  category_name String?
 
   @@map("todos")
 }
@@ -43,7 +43,7 @@ model Category {
   name String @unique()
 
   created_at DateTime @default(now())
-  update_at  DateTime @updatedAt
+  update_at  DateTime @default(now()) @updatedAt
 
   todos    Todo[]
   User     User?  @relation(fields: [username], references: [username])
