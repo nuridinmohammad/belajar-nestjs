@@ -2,36 +2,36 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
-import { UserServiceTest } from './user-spec.service';
-import { UserModuleTest } from './user-spec.module';
+import { EmployeeServiceTest } from './activity-spec.service';
+import { EmployeeModuleTest } from './activity-spec.module';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
-describe('User Endpoint', () => {
+describe('Employee Endpoint', () => {
   let app: INestApplication;
   let logger: Logger;
-  let userServiceTest: UserServiceTest;
+  let employeeServiceTest: EmployeeServiceTest;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, UserModuleTest],
+      imports: [AppModule, EmployeeModuleTest],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
 
     logger = app.get(WINSTON_MODULE_PROVIDER);
-    userServiceTest = app.get(UserServiceTest);
+    employeeServiceTest = app.get(EmployeeServiceTest);
   });
 
-  describe('POST /api/users', () => {
+  describe('POST /api/employees', () => {
     beforeEach(async () => {
-      await userServiceTest.deleteAll();
+      await employeeServiceTest.deleteAll();
     });
 
     it('should be rejected if request is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/users')
+        .post('/api/employees')
         .send({
           username: '',
           password: '',
@@ -46,7 +46,7 @@ describe('User Endpoint', () => {
 
     it('should be success if request is valid', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/users')
+        .post('/api/employees')
         .send({
           username: 'test',
           password: 'test',
@@ -60,9 +60,9 @@ describe('User Endpoint', () => {
     });
 
     it('should be rejected if username already exists', async () => {
-      await userServiceTest.register();
+      await employeeServiceTest.create();
       const response = await request(app.getHttpServer())
-        .post('/api/users')
+        .post('/api/employees')
         .send({
           username: 'test',
           password: 'test',
@@ -76,15 +76,15 @@ describe('User Endpoint', () => {
     });
   });
 
-  describe('POST /api/users/login', () => {
+  describe('POST /api/employees/login', () => {
     beforeEach(async () => {
-      await userServiceTest.deleteAll();
-      await userServiceTest.register();
+      await employeeServiceTest.deleteAll();
+      await employeeServiceTest.create();
     });
 
     it('should be rejected if request is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/users/login')
+        .post('/api/employees/login')
         .send({
           username: '',
           password: '',
@@ -98,7 +98,7 @@ describe('User Endpoint', () => {
 
     it('should be success if request is valid', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/users/login')
+        .post('/api/employees/login')
         .send({
           username: 'test',
           password: 'test',
@@ -113,7 +113,7 @@ describe('User Endpoint', () => {
 
     it('should be rejected if username or password is wrong', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/users/login')
+        .post('/api/employees/login')
         .send({
           username: 'salah',
           password: 'test',
@@ -126,15 +126,15 @@ describe('User Endpoint', () => {
     });
   });
 
-  describe('GET /api/users/current', () => {
+  describe('GET /api/employees/current', () => {
     beforeEach(async () => {
-      await userServiceTest.deleteAll();
-      await userServiceTest.register();
+      await employeeServiceTest.deleteAll();
+      await employeeServiceTest.create();
     });
 
     it('should be rejected if token is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/users/current')
+        .get('/api/employees/current')
         .set('Authorization', 'wrong');
 
       logger.debug(response.body);
@@ -143,9 +143,9 @@ describe('User Endpoint', () => {
       expect(response.body.errors).toBeDefined();
     });
 
-    it('should be able to get user', async () => {
+    it('should be able to get employee', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/users/current')
+        .get('/api/employees/current')
         .set('Authorization', 'test');
 
       logger.debug(response.body);
@@ -153,22 +153,25 @@ describe('User Endpoint', () => {
       expect(response.status).toBe(200);
       expect(response.body.data.username).toBe('test');
       expect(response.body.data.fullname).toBe('test');
+      expect(response.body.data.rate).toBe('12.000');
+      expect(response.body.data.token).toBeDefined();
     });
   });
 
-  describe('PATCH /api/users/current', () => {
+  describe('PATCH /api/employees/current', () => {
     beforeEach(async () => {
-      await userServiceTest.deleteAll();
-      await userServiceTest.register();
+      await employeeServiceTest.deleteAll();
+      await employeeServiceTest.create();
     });
 
     it('should be rejected if token is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .patch('/api/users/current')
+        .patch('/api/employees/current')
         .set('Authorization', 'wrong')
         .send({
           fullname: 'test update',
           password: 'test update',
+          rate: '13.000',
         });
 
       logger.debug(response.body);
@@ -179,11 +182,12 @@ describe('User Endpoint', () => {
 
     it('should be rejected if request is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .patch('/api/users/current')
+        .patch('/api/employees/current')
         .set('Authorization', 'test')
         .send({
           fullname: '',
           password: '',
+          rate: '',
         });
 
       logger.debug(response.body);
@@ -194,20 +198,22 @@ describe('User Endpoint', () => {
 
     it('should be able if request is valid', async () => {
       let response = await request(app.getHttpServer())
-        .patch('/api/users/current')
+        .patch('/api/employees/current')
         .set('Authorization', 'test')
         .send({
           fullname: 'test update',
           password: 'test update',
+          rate: '13.000',
         });
 
       logger.debug(response.body);
 
       expect(response.status).toBe(200);
       expect(response.body.data.fullname).toBe('test update');
+      expect(response.body.data.rate).toBe('13.000');
 
       response = await request(app.getHttpServer())
-        .post('/api/users/login')
+        .post('/api/employees/login')
         .send({
           username: 'test',
           password: 'test update',
@@ -217,6 +223,8 @@ describe('User Endpoint', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.data.token).toBeDefined();
+      expect(response.body.data.fullname).toBe('test update');
+      expect(response.body.data.rate).toBe('13.000');
     });
   });
 });

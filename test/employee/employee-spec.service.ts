@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../src/common/prisma.service';
 
 @Injectable()
-export class UserServiceTest {
+export class EmployeeServiceTest {
   constructor(private prismaService: PrismaService) {}
 
   async deleteAll() {
@@ -11,7 +11,7 @@ export class UserServiceTest {
   }
 
   async deleteUsers() {
-    await this.prismaService.user.deleteMany({
+    await this.prismaService.employee.deleteMany({
       where: {
         username: 'test',
       },
@@ -19,7 +19,7 @@ export class UserServiceTest {
   }
 
   async register() {
-    await this.prismaService.user.create({
+    await this.prismaService.employee.create({
       data: {
         username: 'test',
         fullname: 'test',

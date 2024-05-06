@@ -7,47 +7,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id         Int      @id @default(autoincrement())
-  username   String   @unique
+model Employee {
+  id         Int        @id @default(autoincrement())
+  username   String     @unique
   fullname   String
   password   String
+  rate       String?    @default(dbgenerated("12.000"))
   token      String?
-  created_at DateTime @default(now())
-  update_at  DateTime @default(now()) @updatedAt
+  created_at DateTime   @default(now())
+  updated_at DateTime   @default(now()) @updatedAt
+  activities Activity[]
 
-  todos    Todo[]
-  category Category[]
-
-  @@map("users")
+  @@map("employees")
 }
 
-model Todo {
-  id         Int      @id @default(autoincrement())
-  title      String
-  body       String
-  created_at DateTime @default(now())
-  update_at  DateTime @default(now()) @updatedAt
+model Activity {
+  id          Int       @id @default(autoincrement())
+  title       String
+  start_date  DateTime? @db.Date()
+  end_date    DateTime? @db.Date()
+  start_time  DateTime? @db.Time()
+  end_time    DateTime? @db.Time()
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @default(now()) @updatedAt
+  employee    Employee? @relation(fields: [employee_id], references: [id])
+  employee_id Int?
+  project     Project?  @relation(fields: [project_id], references: [id])
+  project_id  Int?
 
-  user     User?  @relation(fields: [username], references: [username])
-  username String
-
-  category      Category? @relation(fields: [category_name], references: [name])
-  category_name String?
-
-  @@map("todos")
+  @@map("activities")
 }
 
-model Category {
-  id   Int    @id @default(autoincrement())
-  name String @unique()
+model Project {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique
+  created_at DateTime   @default(now())
+  updated_at DateTime   @default(now()) @updatedAt
+  activities Activity[]
 
-  created_at DateTime @default(now())
-  update_at  DateTime @default(now()) @updatedAt
-
-  todos    Todo[]
-  User     User?  @relation(fields: [username], references: [username])
-  username String
-
-  @@map("categories")
+  @@map("projects")
 }

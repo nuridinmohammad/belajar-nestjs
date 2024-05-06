@@ -6,7 +6,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
-      user?: object;
+      employee?: object;
     }
   }
 }
@@ -17,14 +17,14 @@ export class AuthMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     const token = req.headers['authorization'] as string;
     if (token) {
-      const user = await this.prismaService.user.findFirst({
+      const employee = await this.prismaService.employee.findFirst({
         where: {
           token: token,
         },
       });
 
-      if (user) {
-        req.user = user;
+      if (employee) {
+        req.employee = employee;
       }
     }
     next();
