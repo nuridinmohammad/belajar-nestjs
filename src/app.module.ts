@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { dataSourceOptions } from 'db/db-source';
+import { dataSourceOptions } from 'db/data-source';
 import { UsersModule } from './users/users.module';
 
 @Module({
