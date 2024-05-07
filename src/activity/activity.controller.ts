@@ -27,7 +27,7 @@ export class ActivityController {
 
   @Post()
   @HttpCode(201)
-  async ccreate(
+  async create(
     @Auth() employee: Employee,
     @Body() request: CreateActivityRequest,
   ): Promise<WebResponse<ActivityResponse>> {
@@ -40,7 +40,7 @@ export class ActivityController {
 
   @Get('/:id')
   @HttpCode(200)
-  async getTodo(
+  async getActivity(
     @Auth() employee: Employee,
     @Param('id', ParseIntPipe) byId: number,
   ): Promise<WebResponse<ActivityResponse>> {

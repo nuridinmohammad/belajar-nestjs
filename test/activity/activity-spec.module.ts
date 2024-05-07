@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { EmployeeServiceTest } from './activity-spec.service';
+import { ActivityServiceTest } from './activity-spec.service';
 
 @Module({
-  providers: [EmployeeServiceTest],
-  exports: [EmployeeServiceTest],
+  providers: [ActivityServiceTest],
+  exports: [ActivityServiceTest],
 })
-export class EmployeeModuleTest {}
+export class ActivityModuleTest {}

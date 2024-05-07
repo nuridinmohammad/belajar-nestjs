@@ -99,7 +99,7 @@ describe('Project Endpoint', () => {
 
       logger.debug(response.body);
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(404);
       expect(response.body.errors).toBeDefined();
     });
 

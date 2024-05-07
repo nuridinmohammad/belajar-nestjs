@@ -96,6 +96,8 @@ export class ProjectService {
       `ProjectService.remove(${JSON.stringify(employee)}, ${JSON.stringify(id)})`,
     );
 
+    await this.get(employee, id);
+
     await this.prismaService.project.delete({
       where: {
         id: id,

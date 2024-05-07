@@ -30,12 +30,11 @@ export class ActivityService {
     );
     const activityRequest: CreateActivityRequest =
       this.validationService.validate(ActivitySchema.CREATE, request);
-
     const activity = await this.prismaService.activity.create({
       data: {
         ...activityRequest,
         ...{
-          username: employee.username,
+          employee_id: employee.id,
         },
       },
     });
@@ -47,12 +46,13 @@ export class ActivityService {
     return {
       id: activity.id,
       title: activity.title,
-      created_at: activity.created_at.toISOString(),
-      updated_at: activity.updated_at.toISOString(),
-      start_date: activity.start_date.toISOString(),
-      end_date: activity.end_date.toISOString(),
-      start_time: activity.start_time.toISOString(),
-      end_time: activity.end_time.toISOString(),
+      created_at: activity.created_at.toString(),
+      updated_at: activity.updated_at.toString(),
+      start_date: activity.start_date.toString(),
+      end_date: activity.end_date.toString(),
+      start_time: activity.start_time.toString(),
+      end_time: activity.end_time.toString(),
+      duration: Number(activity.end_time) - Number(activity.start_time),
     };
   }
 
@@ -65,7 +65,7 @@ export class ActivityService {
     });
 
     if (!activity) {
-      throw new HttpException('Activity not found', 404);
+      throw new HttpException('Activity not found!', 404);
     }
     return activity;
   }

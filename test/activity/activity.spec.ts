@@ -2,121 +2,43 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
-import { EmployeeServiceTest } from './activity-spec.service';
-import { EmployeeModuleTest } from './activity-spec.module';
+import { ActivityServiceTest } from './activity-spec.service';
+import { ActivityModuleTest } from './activity-spec.module';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
-describe('Employee Endpoint', () => {
+describe('Activity Endpoint', () => {
   let app: INestApplication;
   let logger: Logger;
-  let employeeServiceTest: EmployeeServiceTest;
+  let activityServiceTest: ActivityServiceTest;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, EmployeeModuleTest],
+      imports: [AppModule, ActivityModuleTest],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
 
     logger = app.get(WINSTON_MODULE_PROVIDER);
-    employeeServiceTest = app.get(EmployeeServiceTest);
+    activityServiceTest = app.get(ActivityServiceTest);
   });
 
-  describe('POST /api/employees', () => {
+  describe('POST /api/activities', () => {
     beforeEach(async () => {
-      await employeeServiceTest.deleteAll();
+      await activityServiceTest.deleteAll();
     });
 
-    it('should be rejected if request is invalid', async () => {
+    it('should be rejected if token is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/employees')
+        .post('/api/activities')
+        .set('Authorization', 'wrong')
         .send({
-          username: '',
-          password: '',
-          fullname: '',
-        });
-
-      logger.debug(response.body);
-
-      expect(response.status).toBe(400);
-      expect(response.body.errors).toBeDefined();
-    });
-
-    it('should be success if request is valid', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/api/employees')
-        .send({
-          username: 'test',
-          password: 'test',
-          fullname: 'test',
-        });
-
-      logger.debug(response.body);
-
-      expect(response.status).toBe(201);
-      expect(response.body.data.username).toBe('test');
-    });
-
-    it('should be rejected if username already exists', async () => {
-      await employeeServiceTest.create();
-      const response = await request(app.getHttpServer())
-        .post('/api/employees')
-        .send({
-          username: 'test',
-          password: 'test',
-          fullname: 'test',
-        });
-
-      logger.debug(response.body);
-
-      expect(response.status).toBe(400);
-      expect(response.body.errors).toBeDefined();
-    });
-  });
-
-  describe('POST /api/employees/login', () => {
-    beforeEach(async () => {
-      await employeeServiceTest.deleteAll();
-      await employeeServiceTest.create();
-    });
-
-    it('should be rejected if request is invalid', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/api/employees/login')
-        .send({
-          username: '',
-          password: '',
-        });
-
-      logger.debug(response.body);
-
-      expect(response.status).toBe(400);
-      expect(response.body.errors).toBeDefined();
-    });
-
-    it('should be success if request is valid', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/api/employees/login')
-        .send({
-          username: 'test',
-          password: 'test',
-        });
-
-      logger.debug(response.body);
-
-      expect(response.status).toBe(200);
-      expect(response.body.data.username).toBe('test');
-      expect(response.body.data.token).toBeDefined();
-    });
-
-    it('should be rejected if username or password is wrong', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/api/employees/login')
-        .send({
-          username: 'salah',
-          password: 'test',
+          title: '',
+          start_date: '',
+          end_date: '',
+          start_time: '',
+          end_time: '',
         });
 
       logger.debug(response.body);
@@ -124,17 +46,57 @@ describe('Employee Endpoint', () => {
       expect(response.status).toBe(401);
       expect(response.body.errors).toBeDefined();
     });
+
+    it('should be rejected if request is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/activities')
+        .set('Authorization', 'test')
+        .send({
+          title: '',
+          start_date: '',
+          end_date: '',
+          start_time: '',
+          end_time: '',
+        });
+
+      logger.debug(response.body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be success if request and token is valid', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/activities')
+        .set('Authorization', 'test')
+        .send({
+          title: 'test',
+          start_date: new Date(),
+          end_date: new Date(),
+          start_time: new Date(),
+          end_time: new Date(),
+          project_id: 171,
+        });
+
+      logger.debug(response.body);
+
+      expect(response.status).toBe(201);
+      expect(response.body.errors).toBeUndefined();
+      expect(response.body.data.title).toBe('test');
+      expect(response.body.data.duration).toBeDefined();
+    });
   });
 
-  describe('GET /api/employees/current', () => {
+  describe('GET /api/activities/:id', () => {
     beforeEach(async () => {
-      await employeeServiceTest.deleteAll();
-      await employeeServiceTest.create();
+      await activityServiceTest.deleteAll();
+      await activityServiceTest.create();
     });
 
     it('should be rejected if token is invalid', async () => {
+      const activity = await activityServiceTest.get();
       const response = await request(app.getHttpServer())
-        .get('/api/employees/current')
+        .get(`/api/activities/${activity?.id}`)
         .set('Authorization', 'wrong');
 
       logger.debug(response.body);
@@ -143,35 +105,93 @@ describe('Employee Endpoint', () => {
       expect(response.body.errors).toBeDefined();
     });
 
-    it('should be able to get employee', async () => {
+    it('should be rejected if param is invalid', async () => {
+      const activity = await activityServiceTest.get();
       const response = await request(app.getHttpServer())
-        .get('/api/employees/current')
+        .get(`/api/activities/${activity?.id + 1}`)
+        .set('Authorization', 'test');
+
+      logger.debug(response.body);
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be rejected if param and token  is valid', async () => {
+      const activity = await activityServiceTest.get();
+      const response = await request(app.getHttpServer())
+        .get(`/api/activities/${activity.id}`)
         .set('Authorization', 'test');
 
       logger.debug(response.body);
 
       expect(response.status).toBe(200);
-      expect(response.body.data.username).toBe('test');
-      expect(response.body.data.fullname).toBe('test');
-      expect(response.body.data.rate).toBe('12.000');
-      expect(response.body.data.token).toBeDefined();
+      expect(response.body.errors).toBeUndefined();
     });
   });
 
-  describe('PATCH /api/employees/current', () => {
+  describe('DELETE /api/activities/:id', () => {
     beforeEach(async () => {
-      await employeeServiceTest.deleteAll();
-      await employeeServiceTest.create();
+      await activityServiceTest.deleteAll();
+      await activityServiceTest.create();
     });
 
     it('should be rejected if token is invalid', async () => {
+      const activity = await activityServiceTest.get();
       const response = await request(app.getHttpServer())
-        .patch('/api/employees/current')
+        .delete(`/api/activities/${activity?.id}`)
+        .set('Authorization', 'wrong');
+
+      logger.debug(response.body);
+
+      expect(response.status).toBe(401);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be rejected if param is invalid', async () => {
+      const activity = await activityServiceTest.get();
+      const response = await request(app.getHttpServer())
+        .delete(`/api/activities/${activity?.id + 1}`)
+        .set('Authorization', 'test');
+
+      logger.debug(response.body);
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be rejected if param dan token is valid', async () => {
+      const activity = await activityServiceTest.get();
+      const response = await request(app.getHttpServer())
+        .delete(`/api/activities/${activity?.id}`)
+        .set('Authorization', 'test');
+
+      logger.debug(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.errors).toBeUndefined();
+      expect(response.body.data).toBeTruthy();
+    });
+  });
+
+  describe('UPDATE /api/activities', () => {
+    beforeEach(async () => {
+      await activityServiceTest.deleteAll();
+      await activityServiceTest.create();
+    });
+
+    it('should be rejected if token is invalid', async () => {
+      const activity = await activityServiceTest.get();
+      const response = await request(app.getHttpServer())
+        .patch(`/api/activities/${activity?.id}`)
         .set('Authorization', 'wrong')
         .send({
-          fullname: 'test update',
-          password: 'test update',
-          rate: '13.000',
+          title: 'test update',
+          start_date: new Date(),
+          end_date: new Date(),
+          start_time: new Date(),
+          end_time: new Date(),
+          project_id: 171,
         });
 
       logger.debug(response.body);
@@ -180,14 +200,38 @@ describe('Employee Endpoint', () => {
       expect(response.body.errors).toBeDefined();
     });
 
-    it('should be rejected if request is invalid', async () => {
+    it('should be rejected if param is invalid', async () => {
+      const activity = await activityServiceTest.get();
       const response = await request(app.getHttpServer())
-        .patch('/api/employees/current')
+        .patch(`/api/activities/${activity?.id + 1}`)
         .set('Authorization', 'test')
         .send({
-          fullname: '',
-          password: '',
-          rate: '',
+          title: 'test update',
+          start_date: new Date(),
+          end_date: new Date(),
+          start_time: new Date(),
+          end_time: new Date(),
+          project_id: 171,
+        });
+
+      logger.debug(response.body);
+
+      expect(response.status).toBe(404);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be rejected if request is invalid', async () => {
+      const activity = await activityServiceTest.get();
+      const response = await request(app.getHttpServer())
+        .patch(`/api/activities/${activity?.id}`)
+        .set('Authorization', 'test')
+        .send({
+          title: '',
+          start_date: '',
+          end_date: '',
+          start_time: '',
+          end_time: '',
+          project_id: '',
         });
 
       logger.debug(response.body);
@@ -196,35 +240,25 @@ describe('Employee Endpoint', () => {
       expect(response.body.errors).toBeDefined();
     });
 
-    it('should be able if request is valid', async () => {
-      let response = await request(app.getHttpServer())
-        .patch('/api/employees/current')
+    it('should be success if request is valid', async () => {
+      const activity = await activityServiceTest.get();
+      const response = await request(app.getHttpServer())
+        .patch(`/api/activities/${activity?.id}`)
         .set('Authorization', 'test')
         .send({
-          fullname: 'test update',
-          password: 'test update',
-          rate: '13.000',
+          title: 'test update',
+          start_date: new Date(),
+          end_date: new Date(),
+          start_time: new Date(),
+          end_time: new Date(),
+          project_id: 171,
         });
 
       logger.debug(response.body);
 
       expect(response.status).toBe(200);
-      expect(response.body.data.fullname).toBe('test update');
-      expect(response.body.data.rate).toBe('13.000');
-
-      response = await request(app.getHttpServer())
-        .post('/api/employees/login')
-        .send({
-          username: 'test',
-          password: 'test update',
-        });
-
-      logger.info(response.body);
-
-      expect(response.status).toBe(200);
-      expect(response.body.data.token).toBeDefined();
-      expect(response.body.data.fullname).toBe('test update');
-      expect(response.body.data.rate).toBe('13.000');
+      expect(response.body.errors).toBeUndefined();
+      expect(response.body.data.title).toBe('test update');
     });
   });
 });

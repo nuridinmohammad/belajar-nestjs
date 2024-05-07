@@ -7,6 +7,7 @@ export interface ActivityResponse {
   end_time: string;
   created_at: string;
   updated_at: string;
+  duration: number;
 }
 
 export interface CreateActivityRequest {
