@@ -13,10 +13,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id         Int     @id @default(autoincrement())
-  first_name String  @db.VarChar(100)
-  last_name  String? @db.VarChar(100)
+model Tasks {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String? @db.Text
 
-  @@map("users")
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("tasks")
 }
