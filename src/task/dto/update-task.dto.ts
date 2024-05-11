@@ -10,4 +10,6 @@ export class UpdateTaskDto {
   @IsOptional()
   @IsNotEmpty()
   description?: string;
+
+  user_id: number;
 }

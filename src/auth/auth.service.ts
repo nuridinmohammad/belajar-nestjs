@@ -90,6 +90,7 @@ export class AuthService {
         name: true,
         email: true,
         avatar: true,
+        Task: true,
       },
     });
 

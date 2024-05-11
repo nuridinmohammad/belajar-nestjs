@@ -21,6 +21,9 @@ model Task {
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt
 
+  user    User? @relation(fields: [user_id], references: [id])
+  user_id Int?
+
   @@map("tasks")
 }
 
@@ -33,6 +36,7 @@ model User {
 
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt
+  Task       Task[]
 
   @@map("users")
 }
