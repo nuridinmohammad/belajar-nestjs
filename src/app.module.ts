@@ -5,10 +5,16 @@ import { ConfigModule } from '@nestjs/config';
 import { WinstonModule } from 'nest-winston';
 import { TaskModule } from './task/task.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
 import * as winston from 'winston';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
     WinstonModule.forRoot({
       format: winston.format.json(),
       level: 'debug',
@@ -17,6 +23,7 @@ import * as winston from 'winston';
     ConfigModule.forRoot({ isGlobal: true }),
     TaskModule,
     PrismaModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

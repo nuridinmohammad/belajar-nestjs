@@ -13,7 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Tasks {
+model Task {
   id          Int     @id @default(autoincrement())
   name        String
   description String? @db.Text
@@ -22,4 +22,17 @@ model Tasks {
   updated_at DateTime @default(now()) @updatedAt
 
   @@map("tasks")
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  name     String
+  email    String  @unique
+  password String
+  avatar   String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("users")
 }

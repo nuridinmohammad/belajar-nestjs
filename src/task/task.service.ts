@@ -8,7 +8,7 @@ export class TaskService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(request: CreateTaskDto) {
-    const task = await this.prismaService.tasks.create({
+    const task = await this.prismaService.task.create({
       data: request,
     });
 
@@ -19,7 +19,7 @@ export class TaskService {
   }
 
   async get(id: number) {
-    const task = await this.prismaService.tasks.findFirst({
+    const task = await this.prismaService.task.findFirst({
       where: {
         id: id,
       },
@@ -32,11 +32,11 @@ export class TaskService {
   }
 
   async search() {
-    return await this.prismaService.tasks.findMany();
+    return await this.prismaService.task.findMany();
   }
 
   async update(id: number, request: UpdateTaskDto) {
-    return await this.prismaService.tasks.update({
+    return await this.prismaService.task.update({
       where: {
         id: id,
       },
@@ -45,7 +45,7 @@ export class TaskService {
   }
 
   async delete(id: number) {
-    return await this.prismaService.tasks.delete({
+    return await this.prismaService.task.delete({
       where: {
         id: id,
       },
