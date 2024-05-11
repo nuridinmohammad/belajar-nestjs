@@ -10,7 +10,10 @@ import {
 import { SchoolService } from './school.service';
 import { CreateSchoolDto } from './dto/create-school.dto';
 import { UpdateSchoolDto } from './dto/update-school.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('School')
+@ApiBearerAuth('accessToken')
 @Controller('/api/schools')
 export class SchoolController {
   constructor(private readonly schoolService: SchoolService) {}
