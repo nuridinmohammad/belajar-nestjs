@@ -40,3 +40,13 @@ model User {
 
   @@map("users")
 }
+
+model School {
+  id      Int     @id @default(autoincrement())
+  name    String
+  email   String?
+  address String?
+  phone   String?
+
+  @@map("schools")
+}

@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import * as winston from 'winston';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { SchoolModule } from './school/school.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { join } from 'path';
     TaskModule,
     PrismaModule,
     AuthModule,
+    SchoolModule,
   ],
   controllers: [AppController],
   providers: [AppService],
