@@ -63,6 +63,25 @@ export class AuthService {
     return tokens;
   }
 
+  async current(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        created_at: true,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
+    }
+
+    return user;
+  }
+
   async logout(userId: number): Promise<boolean> {
     await this.prisma.user.updateMany({
       where: {

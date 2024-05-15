@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -30,6 +31,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   signinLocal(@Body() dto: AuthDto): Promise<Tokens> {
     return this.authService.signinLocal(dto);
+  }
+
+  @Public()
+  @UseGuards(AuthGuard('jwt'))
+  @Get('local/current')
+  @HttpCode(HttpStatus.OK)
+  current(@GetCurrentUserId() userId: number): Promise<any> {
+    return this.authService.current(userId);
   }
 
   @UseGuards(AuthGuard('jwt'))
