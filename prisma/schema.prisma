@@ -16,6 +16,8 @@ datasource db {
 model User {
   id        Int     @id @default(autoincrement())
   email     String  @unique
+  name      String
+  gender    Gender  @default(PRIA)
   hash      String
   hashed_rt String?
 
@@ -23,4 +25,9 @@ model User {
   updated_at DateTime @updatedAt
 
   @@map("users")
+}
+
+enum Gender {
+  PEREMPUAN
+  PRIA
 }
